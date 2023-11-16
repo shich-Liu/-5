@@ -45,31 +45,27 @@
             }
         }
 
-2. // Reducer类定义
-   public static class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
+2.   // Reducer类定义
+    public static class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
-
         // Reducer的reduce方法，对Mapper输出的结果进行归约
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             int sum = 0;
-            
             // 对每个标记进行求和
             for (IntWritable val : values) {
                 sum += val.get();
             }
-            
             // 如果标记为"null"，将标记设为"0"
             if (key.toString().equals("null")) {
                 key.set("0");
             }
-            
             // 输出最终结果 (key, sum)
             result.set(sum);
             context.write(key, result);
         }
     }
 
-3.    // 主函数
+3.   // 主函数
     public static void main(String[] args) throws Exception {
         // 创建一个Job实例
         Job job = Job.getInstance();
@@ -91,7 +87,6 @@
         // 提交Job并等待完成
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
-
    
 ## 任务二
 编写MapReduce程序，统计⼀周当中每天申请贷款的交易数WEEKDAY_APPR_PROCESS_START，并按照交易数从⼤到⼩进⾏排序。
