@@ -24,48 +24,54 @@
    - 提交Job并等待完成。
 
 细节分析：
-1.       // Mapper的map方法，对每一行数据进行映射
-        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-            // 将逗号分隔的一行数据拆分成数组
-            String[] line = value.toString().split(",");
-            // 获取最后一列的值，即标签TARGET的值
-            String lastColumnValue = line[line.length - 1];
-            // 如果最后一列为空，则标记为"null"，并输出 (word, 1)
-            if (lastColumnValue.isEmpty()) {
-                word.set("null");
-                context.write(word, one);
-            // 如果最后一列为"0"，则标记为"0"，并输出 (word, 1)
-            } else if (lastColumnValue.equals("0")) {
-                word.set("0");
-                context.write(word, one);
-            // 如果最后一列为"1"，则标记为"1"，并输出 (word, 1)
-            } else if (lastColumnValue.equals("1")) {
-                word.set("1");
-                context.write(word, one);
-            }
-        }
-
-2.   // Reducer类定义
-    public static class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
-        private IntWritable result = new IntWritable();
-        // Reducer的reduce方法，对Mapper输出的结果进行归约
-        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-            int sum = 0;
-            // 对每个标记进行求和
-            for (IntWritable val : values) {
-                sum += val.get();
-            }
-            // 如果标记为"null"，将标记设为"0"
-            if (key.toString().equals("null")) {
-                key.set("0");
-            }
-            // 输出最终结果 (key, sum)
-            result.set(sum);
-            context.write(key, result);
-        }
+1.
+// Mapper的map方法，对每一行数据进行映射
+public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+    // 将逗号分隔的一行数据拆分成数组
+    String[] line = value.toString().split(",");
+    // 获取最后一列的值，即标签TARGET的值
+    String lastColumnValue = line[line.length - 1];
+    // 如果最后一列为空，则标记为"null"，并输出 (word, 1)
+    if (lastColumnValue.isEmpty()) {
+        word.set("null");
+        context.write(word, one);
+    // 如果最后一列为"0"，则标记为"0"，并输出 (word, 1)
+    } else if (lastColumnValue.equals("0")) {
+        word.set("0");
+        context.write(word, one);
+    // 如果最后一列为"1"，则标记为"1"，并输出 (word, 1)
+    } else if (lastColumnValue.equals("1")) {
+        word.set("1");
+        context.write(word, one);
     }
+}
 
-3.   // 主函数
+2.
+'''Java
+// Reducer类定义
+public static class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
+    private IntWritable result = new IntWritable();
+    // Reducer的reduce方法，对Mapper输出的结果进行归约
+    public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+        int sum = 0;
+        // 对每个标记进行求和
+        for (IntWritable val : values) {
+            sum += val.get();
+        }
+        // 如果标记为"null"，将标记设为"0"
+        if (key.toString().equals("null")) {
+            key.set("0");
+        }
+        // 输出最终结果 (key, sum)
+        result.set(sum);
+        context.write(key, result);
+    }
+}
+'''
+
+4.
+'''java
+// 主函数
     public static void main(String[] args) throws Exception {
         // 创建一个Job实例
         Job job = Job.getInstance();
@@ -87,6 +93,7 @@
         // 提交Job并等待完成
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
+'''
    
 ## 任务二
 编写MapReduce程序，统计⼀周当中每天申请贷款的交易数WEEKDAY_APPR_PROCESS_START，并按照交易数从⼤到⼩进⾏排序。
