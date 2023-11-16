@@ -2,7 +2,6 @@
 ## 任务一
 编写MapReduce程序，统计数据集中违约和⾮违约的数量，按照标签TARGET进⾏输出，即1代表有违约的情况出现，0代表其他情况。
 ### 实验结果
-![F28E37EEBE7C93698F4BC041FD22926B](https://github.com/shich-Liu/-5/assets/128021744/e52e0923-936f-42f1-b601-44e489fbd6e8)
 ![6`TO3( `WSR`XD@(TUYM5SM](https://github.com/shich-Liu/-5/assets/128021744/02d6c2c5-14f7-4ada-94d5-acb44f4d7dd8)
 ![DI%12SG~XKVMI4Q)WQ{ PLG](https://github.com/shich-Liu/-5/assets/128021744/1c8eafbb-8104-41bc-874b-d41769c55861)
 ![F28E37EEBE7C93698F4BC041FD22926B](https://github.com/shich-Liu/-5/assets/128021744/e52e0923-936f-42f1-b601-44e489fbd6e8)
@@ -46,8 +45,8 @@
             }
         }
 
-2.      // Reducer类定义
-     public static class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
+2. // Reducer类定义
+   public static class Reduce extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
 
         // Reducer的reduce方法，对Mapper输出的结果进行归约
@@ -70,7 +69,7 @@
         }
     }
 
-    // 主函数
+3.    // 主函数
     public static void main(String[] args) throws Exception {
         // 创建一个Job实例
         Job job = Job.getInstance();
