@@ -2,8 +2,9 @@
 ## 任务一
 编写MapReduce程序，统计数据集中违约和⾮违约的数量，按照标签TARGET进⾏输出，即1代表有违约的情况出现，0代表其他情况。
 ### 实验结果
-![G`3 (BQJ8UZ$D6O~0XU66XR](https://github.com/shich-Liu/-5/assets/128021744/74ca8deb-09a1-4cc5-9dc9-c3766e0b7188)
-![image](https://github.com/shich-Liu/-5/assets/128021744/f9a04010-7532-4a6f-a51b-5ac8f467022e)
+
+![G`3 (BQJ8UZ$D6O~0XU66XR](https://github.com/shich-Liu/-5/assets/128021744/b3025afb-dbff-4811-8589-2227f484556f)
+![F28E37EEBE7C93698F4BC041FD22926B](https://github.com/shich-Liu/-5/assets/128021744/e52e0923-936f-42f1-b601-44e489fbd6e8)
 ![6`TO3( `WSR`XD@(TUYM5SM](https://github.com/shich-Liu/-5/assets/128021744/02d6c2c5-14f7-4ada-94d5-acb44f4d7dd8)
 ![DI%12SG~XKVMI4Q)WQ{ PLG](https://github.com/shich-Liu/-5/assets/128021744/1c8eafbb-8104-41bc-874b-d41769c55861)
 
