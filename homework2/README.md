@@ -167,8 +167,11 @@ public void map(LongWritable key, Text value, Context context) throws IOExceptio
 ## 任务三
 根据application_data.csv中的数据，基于MapReduce建⽴贷款违约检测模型，并评估实验结果的准确率。
 ### 实验结果
+![image](https://github.com/shich-Liu/-5/assets/128021744/a840de06-f5cb-4795-bdbd-5270a534e9e9)
+![image](https://github.com/shich-Liu/-5/assets/128021744/e0a6aff6-81d1-481d-9ad0-698ff120741d)
+![image](https://github.com/shich-Liu/-5/assets/128021744/6d0ce2bb-b5d8-4c7c-b0b2-21f816e76560)
 ### 实验思路
-贝叶斯分类是一种基于贝叶斯定理的概率分类方法，广泛应用于数据挖掘和机器学习领域。其核心原理可以概述如下：
+贝叶斯分类是一种基于贝叶斯定理的概率分类方法，它通过结合先验概率和观测数据的似然概率来计算后验概率，从而实现对新数据的分类，广泛应用于数据挖掘和机器学习领域。其核心原理可以概述如下：
 
 1. **贝叶斯定理**：这是贝叶斯分类的基础，其数学表达式为：
    \[ P(A|B) = \frac{P(B|A) \times P(A)}{P(B)} \]
@@ -184,5 +187,152 @@ public void map(LongWritable key, Text value, Context context) throws IOExceptio
 
 6. **实际应用**：贝叶斯分类器特别适用于维度较高的数据集。由于其概率模型的基础，它对于不完整数据集的处理也比较有效。
 
-简而言之，贝叶斯分类通过结合先验概率和观测数据的似然概率来计算后验概率，从而实现对新数据的分类。
+**细节分析：**
+**Mapper：**
+这段代码是一个用于Hadoop MapReduce的自定义Mapper类，名为`BayesMapper`。它继承自`Mapper`类，并重写了`map`方法，它解析和处理每行数据，然后将处理后的结果作为键值对写入上下文，供Reduce阶段使用。特别的对某些列进行了特殊处理（如性别和其他标记的转换）。下面逐行解释这个类的功能和代码。
 
+```java
+package com.example;
+import java.io.IOException;
+import java.util.Arrays;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;  
+import org.apache.hadoop.mapreduce.Mapper;
+```
+这部分是Java文件的包和导入声明。它导入了所需的类，包括Hadoop框架中的类和标准Java类。
+
+```java
+public class BayesMapper extends Mapper<Object, Text, IntWritable, MyWritable> {
+```
+定义了`BayesMapper`类，它继承自Hadoop的`Mapper`类。这里指定了Mapper的输入键和值类型分别为`Object`和`Text`，输出键和值类型为`IntWritable`和自定义的`MyWritable`。
+
+```java
+    private IntWritable myKey = new IntWritable();  
+    private MyWritable myValue = new MyWritable();
+```
+在类中声明并初始化了输出键和值的实例。
+
+```java
+    @Override  
+    protected void map(Object key, Text value, Context context)  
+            throws IOException, InterruptedException {
+```
+重写`map`方法，这是MapReduce作业的核心部分，处理每一行输入数据。
+
+```java
+        int[] values = getIntData(value); 
+```
+调用`getIntData`方法将输入的`Text`类型的值转换为整型数组。
+
+```java
+        if(!(values[0]==-1)){
+```
+检查转换后的数组第一个元素是否为-1，以确认数据有效性。
+
+```java
+            int label = values[0];  //存放类别  
+            int[] result = new int[values.length-1]; //存放数据  
+            for(int i =1;i<values.length;i++){  
+                result[i-1] = values[i];
+            }  
+```
+将第一个元素作为标签，其余元素放入新数组`result`中。
+
+```java
+            myKey.set(label);  
+            myValue.setValue(result);  
+            context.write(myKey, myValue);
+```
+设置输出键和值，并写入上下文。
+
+```
+    }  
+```
+结束if块。
+
+```
+    private int[] getIntData(Text value) {  
+        String[] values = value.toString().split(",");  
+        int[] data = new int[34];
+```
+`getIntData`方法将Text对象转换为字符串，以逗号分隔，初始化一个长度为34的整型数组。
+
+```java
+        Arrays.fill(data, -1); // 初始化数据数组为-1，表示数据无效
+        boolean skipRow = false; // 用于标记是否跳过当前行
+    
+        for (int i = 0; i < 34; i++) {
+            if (values[i].isEmpty()) {
+                skipRow = true;
+                break;  // 如果发现空值，将标记为跳过当前行，并终止循环
+            }
+        }
+```
+检查数据中是否存在空值，如果有，则标记为跳过。
+
+```java
+        if (!skipRow) {
+            // 处理非空数据行的代码
+```
+只处理非空数据行。
+
+```java
+            data[0] = Integer.parseInt(values[0]);
+            if (!values[1].isEmpty() && !values[2].isEmpty() && !values[3].isEmpty()) {
+                // 如果为M，则为1；如果为F，则为0
+                data[1] = values[1].equalsIgnoreCase("M") ? 1 : 0;
+                // 如果为Y，则为1；如果为N，则为0
+                data[2] = values[2].equalsIgnoreCase("Y") ? 1 : 0;
+                data[3] = values[3].equalsIgnoreCase("Y") ? 1 : 0;
+            }
+            for (int i = 4; i < 34; i++) {
+                data[i] = Integer.parseInt(values[i]);  
+            }
+        }
+```
+转换字符串值为整数，并处理特定的字段。
+
+```java
+        return data;  
+    }    
+}  
+```
+返回处理后的整型数组，并结束类定义。
+
+**Reducer：**
+Reducer部分代码定义了一个名为`BayesReducer`的类，它继承自Hadoop的`Reducer`类。`BayesReducer`用于在MapReduce作业的Reduce阶段处理数据。`BayesReducer`类实现了贝叶斯分类器的Reduce阶段。它从Mapper接收数据，计算每个类别的属性概率，然后使用这些概率来对测试数据进行分类，计算了分类的准确率，并在任务完成后输出这些统计信息。下面是对代码的逐行解释：
+1. **包和导入声明：**
+   - 导入了Java和Hadoop的相关类。
+
+2. **类定义：**
+   - 定义了`BayesReducer`类，它继承自Hadoop的`Reducer`类。该类的输入键和值类型分别为`IntWritable`和自定义的`MyWritable`，输出键和值类型均为`IntWritable`。
+
+3. **类成员变量：**
+   - `testData`：用于存储测试数据的数组列表。
+   - `allData`：存储所有数据的数组列表，用于分类的统计。
+
+4. **setup方法：**
+   - 在Reduce任务开始前执行，用于初始化配置和读取测试数据。
+   - 从Hadoop配置中获取文件路径，并读取测试数据。
+
+5. **reduce方法：**
+   - 接收来自Mapper的键值对，进行处理。
+   - 对每个键（类别）进行统计，计算每个属性值为1的概率。
+
+6. **cleanup方法：**
+   - 在Reduce任务结束后执行。
+   - 计算每个类别在训练数据中出现的概率。
+   - 对测试数据进行分类，并计算分类的准确率。
+
+7. **getSum方法：**
+   - 计算所有训练数据的总数。
+
+8. **getClasify方法：**
+   - 根据计算出的概率，对测试数据进行分类。
+
+9. **readTestData方法：**
+   - 从文件系统中读取测试数据。
+   - 对读入的数据进行解析和预处理。
+
+10. **myString方法：**
+    - 将Double数组转换为字符串表示，用于打印或日志记录。
