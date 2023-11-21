@@ -11,7 +11,7 @@ public class MyWritable implements Writable{
     }  
     public MyWritable(int[] value){  
         this.setValue(value);  
-    } 
+    }
     public void write(DataOutput out) throws IOException {  
         out.writeInt(value.length);  
         for(int i=0; i<value.length;i++){  
